@@ -1,4 +1,4 @@
-package com.example.cryptoapp.adapters
+package com.example.cryptoapp.presentation.adapters
 
 import android.content.Context
 import android.view.LayoutInflater
@@ -6,14 +6,14 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.example.cryptoapp.R
-import com.example.cryptoapp.pojo.CoinPriceInfo
+import com.example.cryptoapp.domain.CoinInfo
 import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.item_coin_info.view.*
 
 class CoinInfoAdapter(private val context: Context) :
     RecyclerView.Adapter<CoinInfoAdapter.CoinInfoViewHolder>() {
 
-    var coinInfoList: List<CoinPriceInfo> = listOf()
+    var coinInfoList: List<CoinInfo> = listOf()
         set(value) {
             field = value
             notifyDataSetChanged()
@@ -35,8 +35,8 @@ class CoinInfoAdapter(private val context: Context) :
             textViewSymbols.text = String.format(symbolsTemplate, coin.fromSymbol, coin.toSymbol)
             textViewPrice.text = coin.price.toString()
             textViewLastUpdate.text =
-                String.format(lastUpdateTemplate, coin.getFormatedTime())
-            Picasso.get().load(coin.getFullImageUrl()).into(imageViewCoin)
+                String.format(lastUpdateTemplate, coin.lastUpdate)
+            Picasso.get().load(coin.imageUrl).into(imageViewCoin)
             itemView.setOnClickListener {
                 onCoinClickListener?.onCoinClick(coin)
             }
@@ -53,6 +53,6 @@ class CoinInfoAdapter(private val context: Context) :
     }
 
     interface OnCoinClickListener {
-        fun onCoinClick(coinPriceInfo: CoinPriceInfo)
+        fun onCoinClick(coinPriceInfo: CoinInfo)
     }
 }

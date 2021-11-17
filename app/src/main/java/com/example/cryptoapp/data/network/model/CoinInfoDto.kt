@@ -1,15 +1,13 @@
-package com.example.cryptoapp.pojo
+package com.example.cryptoapp.data.network.model
 
 import androidx.annotation.NonNull
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import com.example.cryptoapp.api.ApiFactory.BASE_IMAGE_URL
-import com.example.cryptoapp.utils.convertTimestampToTime
 import com.google.gson.annotations.Expose
 import com.google.gson.annotations.SerializedName
 
 @Entity(tableName = "full_price_list")
-data class CoinPriceInfo(
+data class CoinInfoDto(
     @SerializedName("TYPE")
     @Expose
     val type: String? = null,
@@ -199,10 +197,4 @@ data class CoinPriceInfo(
     @SerializedName("IMAGEURL")
     @Expose
     val imageUrl: String? = null,
-) {
-    fun getFormatedTime(): String {
-        return convertTimestampToTime(lastUpdate)
-    }
-
-    fun getFullImageUrl(): String = BASE_IMAGE_URL + imageUrl
-}
+)
