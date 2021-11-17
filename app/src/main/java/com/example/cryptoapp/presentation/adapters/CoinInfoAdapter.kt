@@ -40,6 +40,10 @@ class CoinInfoAdapter(
         }
     }
 
+    fun getCoinInfoList():Int {
+        return 1
+    }
+
     interface OnCoinClickListener {
         fun onCoinClick(coinPriceInfo: CoinInfo)
     }

@@ -9,10 +9,13 @@ import com.example.cryptoapp.databinding.ActivityCoinPriceListBinding
 import com.example.cryptoapp.presentation.adapters.CoinInfoAdapter
 import com.example.cryptoapp.domain.CoinInfo
 import com.example.cryptoapp.presentation.adapters.CoinInfoViewHolder
+import kotlinx.coroutines.delay
 
 class CoinPriceListActivity : AppCompatActivity() {
 
     private lateinit var viewModel: CoinViewModel
+
+    private var fragmentOnScreen = false
 
     private val binding by lazy {
         ActivityCoinPriceListBinding.inflate(layoutInflater)
@@ -23,11 +26,6 @@ class CoinPriceListActivity : AppCompatActivity() {
         setContentView(binding.root)
         viewModel = ViewModelProvider(this)[CoinViewModel::class.java]
         val adapter = CoinInfoAdapter(this)
-
-        if (!isOnePaneMode()) {
-            launchDetailFragment(DEFAULT_DETAIL_COIN)
-        }
-
         adapter.onCoinClickListener = object : CoinInfoAdapter.OnCoinClickListener {
             override fun onCoinClick(coinPriceInfo: CoinInfo) {
                 if (isOnePaneMode()) {
@@ -41,7 +39,12 @@ class CoinPriceListActivity : AppCompatActivity() {
         binding.recyclerViewCoinPriceList.itemAnimator = null
         viewModel.coinInfoList.observe(this) {
             adapter.submitList(it)
+            if (!isOnePaneMode() && fragmentOnScreen == false) {
+                launchDetailFragment(adapter.currentList.get(0).fromSymbol)
+            }
         }
+
+
     }
 
     private fun isOnePaneMode() = binding.fragmentContainer == null
@@ -58,6 +61,7 @@ class CoinPriceListActivity : AppCompatActivity() {
             .beginTransaction()
             .replace(R.id.fragment_container, CoinDetailFragment.newInstance(fromSymbol))
             .commit()
+        fragmentOnScreen = true
     }
 
     companion object {
