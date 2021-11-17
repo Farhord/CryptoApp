@@ -5,30 +5,62 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.example.cryptoapp.R
+import com.example.cryptoapp.databinding.ActivityCoinPriceListBinding
 import com.example.cryptoapp.presentation.adapters.CoinInfoAdapter
-import com.example.cryptoapp.data.network.model.CoinInfoDto
 import com.example.cryptoapp.domain.CoinInfo
-import kotlinx.android.synthetic.main.activity_coin_price_list.*
-
-private lateinit var viewModel: CoinViewModel
+import com.example.cryptoapp.presentation.adapters.CoinInfoViewHolder
 
 class CoinPriceListActivity : AppCompatActivity() {
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_coin_price_list)
-        viewModel = ViewModelProvider(this)[CoinViewModel::class.java]
-        val adapter = CoinInfoAdapter(this)
-        adapter.onCoinClickListener = object : CoinInfoAdapter.OnCoinClickListener {
-            override fun onCoinClick(coinPriceInfo: CoinInfo) {
-                val intent = CoinDetailActivity.newIntent(this@CoinPriceListActivity,
-                    coinPriceInfo.fromSymbol)
-                startActivity(intent)
-            }
-        }
-        recyclerViewCoinPriceList.adapter = adapter
-        viewModel.coinInfoList.observe(this, Observer {
-            adapter.coinInfoList = it
-        })
+
+    private lateinit var viewModel: CoinViewModel
+
+    private val binding by lazy {
+        ActivityCoinPriceListBinding.inflate(layoutInflater)
     }
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(binding.root)
+        viewModel = ViewModelProvider(this)[CoinViewModel::class.java]
+        val adapter = CoinInfoAdapter(this)
+
+        if (!isOnePaneMode()) {
+            launchDetailFragment(DEFAULT_DETAIL_COIN)
+        }
+
+        adapter.onCoinClickListener = object : CoinInfoAdapter.OnCoinClickListener {
+            override fun onCoinClick(coinPriceInfo: CoinInfo) {
+                if (isOnePaneMode()) {
+                    launchDetailActivity(coinPriceInfo.fromSymbol)
+                } else {
+                    launchDetailFragment(coinPriceInfo.fromSymbol)
+                }
+            }
+        }
+        binding.recyclerViewCoinPriceList.adapter = adapter
+        binding.recyclerViewCoinPriceList.itemAnimator = null
+        viewModel.coinInfoList.observe(this) {
+            adapter.submitList(it)
+        }
+    }
+
+    private fun isOnePaneMode() = binding.fragmentContainer == null
+
+    private fun launchDetailActivity(fromSymbol: String) {
+        val intent = CoinDetailActivity.newIntent(this@CoinPriceListActivity,
+            fromSymbol)
+        startActivity(intent)
+    }
+
+    private fun launchDetailFragment(fromSymbol: String) {
+        supportFragmentManager.popBackStack()
+        supportFragmentManager
+            .beginTransaction()
+            .replace(R.id.fragment_container, CoinDetailFragment.newInstance(fromSymbol))
+            .commit()
+    }
+
+    companion object {
+        private const val DEFAULT_DETAIL_COIN = "BTC"
+    }
 }
